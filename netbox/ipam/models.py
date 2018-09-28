@@ -32,11 +32,11 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     )
     rd = models.CharField(
         max_length=21,
-        unique=True,
+        unique=False,
         verbose_name='Route distinguisher'
     )
-    tenant = models.ForeignKey(
-        to='tenancy.Tenant',
+    device = models.ForeignKey(
+        to='dcim.Device',
         on_delete=models.PROTECT,
         related_name='vrfs',
         blank=True,
@@ -59,7 +59,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+    csv_headers = ['name', 'rd', 'device', 'enforce_unique', 'description']
 
     class Meta:
         ordering = ['name', 'rd']
@@ -76,7 +76,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         return (
             self.name,
             self.rd,
-            self.tenant.name if self.tenant else None,
+            self.device.name if self.device else None,
             self.enforce_unique,
             self.description,
         )
