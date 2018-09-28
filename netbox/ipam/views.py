@@ -7,7 +7,6 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django_tables2 import RequestConfig
-
 from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
