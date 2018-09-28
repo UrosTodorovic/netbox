@@ -105,13 +105,13 @@ SEARCH_TYPES = OrderedDict((
         'url': 'ipam:aggregate_list',
     }),
     ('prefix', {
-        'queryset': Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
+        'queryset': Prefix.objects.select_related('site', 'vrf__device', 'tenant', 'vlan', 'role'),
         'filter': PrefixFilter,
         'table': PrefixTable,
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
-        'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant'),
+        'queryset': IPAddress.objects.select_related('vrf__device', 'tenant'),
         'filter': IPAddressFilter,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',

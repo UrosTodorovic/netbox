@@ -33,7 +33,7 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class VRFViewSet(CustomFieldModelViewSet):
-    queryset = VRF.objects.select_related('tenant')
+    queryset = VRF.objects.all()
     serializer_class = serializers.VRFSerializer
     filter_class = filters.VRFFilter
 
@@ -73,7 +73,7 @@ class RoleViewSet(ModelViewSet):
 #
 
 class PrefixViewSet(CustomFieldModelViewSet):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__device', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
     filter_class = filters.PrefixFilter
 
@@ -243,7 +243,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
 class IPAddressViewSet(CustomFieldModelViewSet):
     queryset = IPAddress.objects.select_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine'
+        'vrf__device', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine'
     ).prefetch_related(
         'nat_outside'
     )

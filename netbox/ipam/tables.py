@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Interface
+from dcim.models import Interface, Device
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -189,11 +189,12 @@ class VRFTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     rd = tables.Column(verbose_name='RD')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    # tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')])
 
     class Meta(BaseTable.Meta):
         model = VRF
-        fields = ('pk', 'name', 'rd', 'tenant', 'description')
+        fields = ('pk', 'name', 'rd', 'device', 'description')
 
 
 #

@@ -116,7 +116,7 @@ def add_available_vlans(vlan_group, vlans):
 #
 
 class VRFListView(ObjectListView):
-    queryset = VRF.objects.select_related('tenant')
+    queryset = VRF.objects.select_related('device')
     filter = filters.VRFFilter
     filter_form = forms.VRFFilterForm
     table = tables.VRFTable
@@ -166,7 +166,7 @@ class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vrf'
-    queryset = VRF.objects.select_related('tenant')
+    queryset = VRF.objects.select_related('device').select_related('tenant')
     filter = filters.VRFFilter
     table = tables.VRFTable
     form = forms.VRFBulkEditForm
@@ -439,7 +439,7 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__device', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
@@ -603,7 +603,7 @@ class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_prefix'
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__device', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     table = tables.PrefixTable
     form = forms.PrefixBulkEditForm
@@ -612,7 +612,7 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_prefix'
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__device', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     table = tables.PrefixTable
     default_return_url = 'ipam:prefix_list'
@@ -624,7 +624,7 @@ class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.select_related(
-        'vrf__tenant', 'tenant', 'nat_inside'
+        'vrf__device', 'tenant', 'nat_inside'
     ).prefetch_related(
         'interface__device', 'interface__virtual_machine'
     )
@@ -638,7 +638,7 @@ class IPAddressView(View):
 
     def get(self, request, pk):
 
-        ipaddress = get_object_or_404(IPAddress.objects.select_related('vrf__tenant', 'tenant'), pk=pk)
+        ipaddress = get_object_or_404(IPAddress.objects.select_related('vrf__device', 'tenant'), pk=pk)
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -774,7 +774,7 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
+    queryset = IPAddress.objects.select_related('vrf__device', 'tenant').prefetch_related('interface__device')
     filter = filters.IPAddressFilter
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
@@ -783,7 +783,7 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
+    queryset = IPAddress.objects.select_related('vrf__device', 'tenant').prefetch_related('interface__device')
     filter = filters.IPAddressFilter
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'

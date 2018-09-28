@@ -21,6 +21,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    '''
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
@@ -30,6 +31,17 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
+    )
+    '''
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Device(ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        name='device__name',
+        queryset=Device.objects.all(),
+        to_field_name='device__name',
+        label='Device (name)',
     )
     tag = django_filters.CharFilter(
         name='tags__slug',

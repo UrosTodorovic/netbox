@@ -9,7 +9,8 @@ from taggit.forms import TagField
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
-from tenancy.models import Tenant
+from dcim.forms import DeviceForm
+from tenancy.models import TenantGroup, Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
     CSVChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, ReturnURLForm,
@@ -35,28 +36,57 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 129)]
 # VRFs
 #
 
-class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class VRFForm(BootstrapMixin, CustomFieldForm):
     tags = TagField(required=False)
+    tenant_group = forms.ModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'tenant', 'nullable': 'true'}
+        )
+    )
+    tenant1 = ChainedModelChoiceField(
+        queryset=Tenant.objects.all(),
+        chains=(
+            ('group', 'tenant_group'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/tenancy/tenants/?group_id={{tenant_group}}',
+            attrs={'filter-for': 'device', 'nullable': 'true'},
+        )
+    )
+    device = ChainedModelChoiceField(
+        queryset=Device.objects.all(),
+        chains=(
+            ('tenant', 'tenant1'),
+        ),
+        required=True,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?tenant_id={{tenant1}}'
+        )
+    )
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant', 'tags']
+        fields = ['name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant', 'device', 'tags']
         labels = {
             'rd': "RD",
         }
         help_texts = {
             'rd': "Route distinguisher in any format",
+            'device': "Device on which the VRF is configured"
         }
 
 
 class VRFCSVForm(forms.ModelForm):
-    tenant = forms.ModelChoiceField(
-        queryset=Tenant.objects.all(),
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Name of assigned device',
         error_messages={
-            'invalid_choice': 'Tenant not found.',
+            'invalid_choice': 'Device not found.',
         }
     )
 
@@ -70,22 +100,22 @@ class VRFCSVForm(forms.ModelForm):
 
 class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False)
     enforce_unique = forms.NullBooleanField(
         required=False, widget=BulkEditNullBooleanSelect, label='Enforce unique space'
     )
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['tenant', 'description']
+        nullable_fields = ['device', 'description']
 
 
 class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VRF
     q = forms.CharField(required=False, label='Search')
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(filter_count=Count('vrfs')),
-        to_field_name='slug',
+    device = FilterChoiceField(
+        queryset=Device.objects.annotate(filter_count=Count('vrfs')),
+        to_field_name='name',
         null_label='-- None --'
     )
 
