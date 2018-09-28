@@ -26,13 +26,13 @@ from virtualization.api.serializers import NestedVirtualMachineSerializer
 #
 
 class VRFSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    device = NestedDeviceSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VRF
         fields = [
-            'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags', 'display_name', 'custom_fields',
+            'id', 'name', 'rd', 'device', 'enforce_unique', 'description', 'tags', 'display_name', 'custom_fields',
             'created', 'last_updated',
         ]
 
