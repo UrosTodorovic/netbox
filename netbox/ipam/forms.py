@@ -45,7 +45,7 @@ class VRFForm(BootstrapMixin, CustomFieldForm):
             attrs={'filter-for': 'tenant', 'nullable': 'true'}
         )
     )
-    tenant1 = ChainedModelChoiceField(
+    tenant = ChainedModelChoiceField(
         queryset=Tenant.objects.all(),
         chains=(
             ('group', 'tenant_group'),
