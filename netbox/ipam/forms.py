@@ -59,11 +59,11 @@ class VRFForm(BootstrapMixin, CustomFieldForm):
     device = ChainedModelChoiceField(
         queryset=Device.objects.all(),
         chains=(
-            ('tenant', 'tenant1'),
+            ('tenant', 'tenant'),
         ),
         required=True,
         widget=APISelect(
-            api_url='/api/dcim/devices/?tenant_id={{tenant1}}'
+            api_url='/api/dcim/devices/?tenant_id={{tenant}}'
         )
     )
 
