@@ -40,7 +40,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
     device = django_filters.ModelMultipleChoiceFilter(
         name='device__name',
         queryset=Device.objects.all(),
-        to_field_name='device__name',
+        to_field_name='name',
         label='Device (name)',
     )
     tag = django_filters.CharFilter(
